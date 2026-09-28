@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GroupRail</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand-row">
+        <div class="brand-copy">
+          <img class="brand-icon" src="assets/icons/icon32.png" alt="" />
+          <div>
+            <h1>GroupRail</h1>
+            <p id="summary">Loading tabs...</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="refresh" class="icon-button" type="button" title="Refresh" aria-label="Refresh">
+            ↻
+          </button>
+          <button id="close-rail" class="icon-button" type="button" title="Collapse GroupRail; reopen it from the toolbar icon or Ctrl+Shift+." aria-label="Collapse GroupRail">
+            ‹
+          </button>
+        </div>
+      </div>
+
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input id="search" type="search" placeholder="Find a tab or folder" autocomplete="off" />
+      </label>
+
+      <div class="folder-tools" aria-label="Folder display controls">
+        <button id="new-group" type="button">+ Group</button>
+        <button id="expand-all" type="button">Expand all</button>
+        <button id="collapse-all" type="button">Collapse all</button>
+      </div>
+
+      <div class="toolbar">
+        <button id="compact" class="primary" type="button" title="Use the smallest native group markers">Use smallest top-bar markers</button>
+        <button id="restore" type="button" hidden title="Show full names in Edge’s built-in tab menu and top bar">Show names in Edge menus</button>
+      </div>
+      <p id="notice" class="notice" role="status" aria-live="polite"></p>
+    </header>
+
+    <main>
+      <section id="folders" aria-label="Tab folders"></section>
+
+      <section class="loose-section">
+        <button id="loose-toggle" class="section-toggle" type="button" aria-expanded="false">
+          <span>Loose tabs</span>
+          <span id="loose-count" class="count"></span>
+        </button>
+        <div id="loose-tabs" hidden></div>
+      </section>
+
+      <div id="empty" class="empty" hidden>
+        <strong>No matching tabs</strong>
+        <span>Try another title, site, or folder name.</span>
+      </div>
+    </main>
+
+    <template id="folder-template">
+      <article class="folder-card">
+        <div class="folder-header">
+          <button class="folder-toggle" type="button" aria-expanded="false">
+            <span class="group-drag drag-handle" draggable="true" title="Drag group to reorder" aria-label="Drag group to reorder">⠿</span>
+            <span class="color-dot"></span>
+            <span class="folder-name"></span>
+            <span class="count"></span>
+            <span class="chevron" aria-hidden="true">›</span>
+          </button>
+          <button class="folder-menu" type="button" aria-expanded="false" title="Organize group" aria-label="Organize group">⋯</button>
+        </div>
+        <div class="folder-actions" hidden>
+          <button class="edit-folder" type="button">Edit</button>
+          <button class="move-folder-up" type="button" title="Move group earlier">↑</button>
+          <button class="move-folder-down" type="button" title="Move group later">↓</button>
+          <button class="ungroup-folder danger" type="button">Ungroup</button>
+        </div>
+        <div class="tab-list" hidden></div>
+      </article>
+    </template>
+
+    <template id="tab-template">
+      <div class="tab-row">
+        <span class="tab-drag drag-handle" draggable="true" title="Drag tab to reorder or move" aria-label="Drag tab to reorder or move">⠿</span>
+        <button class="tab-open" type="button">
+          <span class="favicon-wrap"><img class="favicon" alt="" /></span>
+          <span class="tab-copy">
+            <span class="tab-title"></span>
+            <span class="tab-host"></span>
+          </span>
+        </button>
+        <select class="tab-organize" aria-label="Organize tab" title="Organize tab">
+          <option value="" selected>⋯</option>
+          <option value="earlier">Move earlier</option>
+          <option value="later">Move later</option>
+          <option value="none">Move to Loose tabs</option>
+          <option value="new">Make a new group…</option>
+        </select>
+      </div>
+    </template>
+
+    <dialog id="group-dialog">
+      <form id="group-form" method="dialog">
+        <h2 id="group-dialog-title">New group</h2>
+        <p id="group-dialog-description">The active tab will move into this group.</p>
+        <label>
+          <span>Name</span>
+          <input id="group-name" name="name" maxlength="80" required autocomplete="off" />
+        </label>
+        <fieldset id="group-color" class="color-picker">
+          <legend>Color</legend>
+          <label style="--chip: #3b82f6"><input type="radio" name="color" value="blue" /><span>Blue</span></label>
+          <label style="--chip: #06b6d4"><input type="radio" name="color" value="cyan" /><span>Cyan</span></label>
+          <label style="--chip: #22c55e"><input type="radio" name="color" value="green" /><span>Green</span></label>
+          <label style="--chip: #7b8495"><input type="radio" name="color" value="grey" /><span>Grey</span></label>
+          <label style="--chip: #f97316"><input type="radio" name="color" value="orange" /><span>Orange</span></label>
+          <label style="--chip: #ec4899"><input type="radio" name="color" value="pink" /><span>Pink</span></label>
+          <label style="--chip: #a855f7"><input type="radio" name="color" value="purple" /><span>Purple</span></label>
+          <label style="--chip: #ef4444"><input type="radio" name="color" value="red" /><span>Red</span></label>
+          <label style="--chip: #eab308"><input type="radio" name="color" value="yellow" /><span>Yellow</span></label>
+        </fieldset>
+        <div class="dialog-actions">
+          <button value="cancel" type="button" id="cancel-group">Cancel</button>
+          <button value="save" class="primary" type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>
