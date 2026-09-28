@@ -2,10 +2,12 @@ import {
   COMPACT_GROUP_TITLE,
   NO_GROUP,
   chooseRecord,
+  faviconPageUrl,
   filterSnapshot,
   groupDropPosition,
   safeFavicon,
   tabDropIndex,
+  retainClaimedRecords,
   uniqueUrls,
   visibleGroupTitle,
 } from "./model.js";
@@ -95,7 +97,7 @@ function startDrag(event, state, sourceElement) {
   dragState = state;
   sourceElement.classList.add("dragging");
   event.dataTransfer.effectAllowed = "move";
-  event.dataTransfer.setData("text/plain", JSON.stringify(state));
+  event.dataTransfer.setData("application/x-grouprail", "move");
 }
 
 function finishDrag(sourceElement) {
@@ -174,8 +176,11 @@ async function readSnapshot() {
     };
   });
 
+  const retainedRecords = retainClaimedRecords(records, claimed);
+  if (retainedRecords.length !== records.length) recordsChanged = true;
+
   if (recordsChanged || compactStateChanged) {
-    settings.folderRecords = records;
+    settings.folderRecords = retainedRecords;
     await saveSettings(settings);
   }
 
@@ -314,7 +319,9 @@ function createTabRow(tab, dragEnabled = true) {
   const openButton = row.querySelector(".tab-open");
   const organize = row.querySelector(".tab-organize");
   const favicon = row.querySelector(".favicon");
-  const faviconUrl = safeFavicon(tab);
+  const embeddedFavicon = safeFavicon(tab);
+  const pageUrl = faviconPageUrl(tab.url);
+  const faviconUrl = embeddedFavicon || (pageUrl ? browserFaviconUrl(pageUrl) : "");
   if (faviconUrl) favicon.src = faviconUrl;
   row.querySelector(".tab-title").textContent = tab.title || "Untitled tab";
   row.querySelector(".tab-host").textContent = hostFor(tab.url);
@@ -360,6 +367,13 @@ function createTabRow(tab, dragEnabled = true) {
     await organizeTab(tab, action);
   });
   return row;
+}
+
+function browserFaviconUrl(pageUrl) {
+  const faviconUrl = new URL(chrome.runtime.getURL("/_favicon/"));
+  faviconUrl.searchParams.set("pageUrl", pageUrl);
+  faviconUrl.searchParams.set("size", "32");
+  return faviconUrl.href;
 }
 
 async function moveFolder(folder, direction) {
@@ -570,9 +584,43 @@ async function refresh({ clearNotice = true } = {}) {
     snapshot = await readSnapshot();
     if (clearNotice) elements.notice.textContent = "";
     render();
+    return true;
   } catch (error) {
     elements.notice.textContent = `Could not read tabs: ${error.message}`;
+    return false;
   }
+}
+
+async function manualRefresh() {
+  if (elements.refresh.disabled) return;
+  elements.refresh.disabled = true;
+  elements.refresh.classList.add("refreshing");
+  elements.refresh.setAttribute("aria-busy", "true");
+  elements.refresh.title = "Refreshing tabs";
+  elements.notice.textContent = "Refreshing tabs...";
+
+  const [succeeded] = await Promise.all([
+    refresh({ clearNotice: false }),
+    new Promise((resolve) => setTimeout(resolve, 320)),
+  ]);
+
+  elements.refresh.classList.remove("refreshing");
+  elements.refresh.removeAttribute("aria-busy");
+  elements.refresh.disabled = false;
+  if (!succeeded) {
+    elements.refresh.title = "Refresh";
+    return;
+  }
+
+  elements.refresh.textContent = "✓";
+  elements.refresh.title = "Up to date";
+  elements.refresh.setAttribute("aria-label", "Up to date");
+  elements.notice.textContent = `Up to date · ${snapshot.tabs.length} tabs`;
+  setTimeout(() => {
+    elements.refresh.textContent = "↻";
+    elements.refresh.title = "Refresh";
+    elements.refresh.setAttribute("aria-label", "Refresh");
+  }, 1400);
 }
 
 function scheduleRefresh() {
@@ -615,7 +663,7 @@ async function restoreGroups() {
 
 elements.compact.addEventListener("click", compactGroups);
 elements.restore.addEventListener("click", restoreGroups);
-elements.refresh.addEventListener("click", () => refresh());
+elements.refresh.addEventListener("click", manualRefresh);
 elements.closeRail.addEventListener("click", async () => {
   if (chrome.sidePanel.close) {
     await chrome.sidePanel.close({ windowId: currentWindowId });

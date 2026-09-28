@@ -8,7 +8,7 @@
 
 GroupRail is a free, open-source Edge extension for people with dozens—or hundreds—of open tabs. It turns native Edge tab groups into a compact folder rail in the browser side panel, while ungrouped tabs remain in Edge's familiar horizontal tab strip and keep their order.
 
-GroupRail 1.0 is release-ready and has been dogfood-tested in Microsoft Edge with a real 97-tab window plus a privacy-safe 100-tab test profile.
+GroupRail 1.0.1 is release-ready and has been dogfood-tested in Microsoft Edge with a real 97-tab window plus a privacy-safe 100-tab test profile.
 
 ![GroupRail showing eight Edge tab groups in a compact side rail](assets/store/screenshot-overview.png)
 
@@ -34,6 +34,7 @@ This makes GroupRail relevant to searches such as **tab groups sidebar**, **Edge
 - Lists native Edge tab groups as expandable folders in the side panel.
 - Shows favicons, full tab titles, site names, group colors, tab counts, and active-tab state.
 - Provides explicit **Expand all** and **Collapse all** controls plus a chevron on every folder.
+- Shows immediate spinner, checkmark, and tab-count feedback when manually refreshed.
 - Keeps loose tabs in their existing top-strip order and hides their long list until requested.
 - Activates a selected tab without reading or changing the webpage.
 - Adds a compact `⋯` organizer to each group and tab.
@@ -56,7 +57,7 @@ Compact mode and Edge's built-in tab-strip group menu share one browser limitati
 
 Use the `‹` control in GroupRail's header to collapse the rail completely and return all page width. Reopen it from the pinned GroupRail toolbar icon or the keyboard shortcut. Edge owns the dock width; drag the panel divider to make GroupRail as narrow as you prefer.
 
-The extension runs locally and uses Edge's supported `sidePanel`, `tabs`, and `tabGroups` APIs. Its background worker is event-driven; it does not poll while the panel is closed.
+The extension runs locally and uses Edge's supported `sidePanel`, `tabs`, and `tabGroups` APIs. Its background worker is event-driven; it does not poll while the panel is closed. Favicons are served through Edge's browser-local extension favicon resource; GroupRail rejects direct remote favicon URLs.
 
 ## Important Edge limitation
 
@@ -70,15 +71,16 @@ Edge does not let extensions remove open tabs or native group markers from the b
 
 ## Privacy and permissions
 
-GroupRail has no accounts, ads, analytics, telemetry, content scripts, host permissions, or network requests.
+GroupRail has no accounts, ads, analytics, telemetry, content scripts, host permissions, or application-controlled network requests. It does not load remote favicon URLs.
 
 | Permission | Why it is needed |
 | --- | --- |
 | `tabs` | Display tab titles, URLs, favicons, order, and active state; activate the tab you choose. |
 | `tabGroups` | Display and, only when requested, create, rename, recolor, move, compact, restore, or ungroup native groups. |
 | `contextMenus` | Add the local **GroupRail: Move this tab** menu inside webpages. |
+| `favicon` | Ask Edge's browser-local favicon resource for cached site icons without loading a site's remote favicon URL directly. |
 | `sidePanel` | Show GroupRail in Edge's supported side panel. |
-| `storage` | Save group names and display preferences locally. |
+| `storage` | Save group names, display preferences, and privacy-minimized active-group match keys locally. Match keys exclude credentials, query strings, fragments, invalid URLs, and local file paths; retired-group records are pruned. |
 
 GroupRail cannot read cookies, saved passwords, form data, or page contents. See [PRIVACY.md](PRIVACY.md) for the full policy.
 
@@ -95,11 +97,12 @@ Loading an unpacked extension grants the permissions listed above. Review the so
 
 ## Test evidence
 
-- Unit/model suite: 7 passing tests.
+- Unit/model suite: 11 passing tests.
 - Isolated Edge fixture: 100 tabs, 8 groups, 45 grouped tabs, and 55 loose tabs.
 - Measured panel reload/render for that fixture: about 50 ms on the development machine.
 - Privacy-safe real-workload shape used for sizing: 97 tabs, 8 named groups, 48 loose tabs, 57 sites, median title length 55 characters, and maximum title length 137 characters.
 - Compact/restore round trip preserved group names in the isolated profile and the everyday Edge profile.
+- Security regression coverage rejects direct remote favicon URLs, strips sensitive URL components from local match keys, and prunes records for retired groups.
 - Organizer round trips covered create, rename, all nine colors, menu and drag-based group order, menu and drag-based tab order, cross-group tab moves, and ungroup-without-close; the 100-tab count remained unchanged.
 - Dragging a group changed Edge's real group indexes, and dragging a tab across groups changed both membership and exact top-bar position; the original fixture order was then restored exactly.
 - Editing while compact retained the invisible native marker, updated the saved rail name, and restored the edited native name exactly.
@@ -129,6 +132,10 @@ Before a release, also load the unpacked extension in Edge and complete the manu
 - Request only essential permissions.
 - Keep all tab metadata on the user's device.
 - Never claim browser-chrome behavior that has not been visually verified.
+
+## Security
+
+GroupRail's threat-focused source audit covers all tracked files and the packaged extension. See [SECURITY.md](SECURITY.md) for the reporting path and design guarantees. The v1.0.1 hardening release removes direct remote favicon loading, minimizes locally stored URL match keys, and removes retired-group records.
 
 ## License
 

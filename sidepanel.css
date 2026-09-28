@@ -120,6 +120,25 @@ h1 {
   cursor: pointer;
 }
 
+.icon-button:disabled {
+  cursor: wait;
+  opacity: 0.78;
+}
+
+.icon-button.refreshing {
+  animation: refresh-spin 650ms linear infinite;
+}
+
+@keyframes refresh-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-button.refreshing {
+    animation: none;
+  }
+}
+
 .search-box {
   display: grid;
   grid-template-columns: auto 1fr;

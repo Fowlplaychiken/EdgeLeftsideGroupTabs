@@ -32,8 +32,8 @@ GroupRail is local-first by design:
 - Free and open-source.
 - No accounts or subscriptions.
 - No ads or affiliate links.
-- No analytics or telemetry.
-- No network requests.
+- No analytics, telemetry, remote service, or application-controlled network requests.
+- No direct remote favicon loading; site icons use Edge's browser-local extension favicon resource.
 - No access to cookies, passwords, form data, or page contents.
 - No scripts injected into websites.
 
@@ -79,6 +79,18 @@ Free
 10. Select **Use smallest top-bar markers** and verify group names are removed from the native tab strip while names remain visible in GroupRail.
 11. Select an ungrouped tab and verify inactive native groups collapse.
 12. Select **Show names in Edge menus** and verify the original native names return.
-13. Close the side panel and verify GroupRail does not block or overlay page content.
+13. Select the refresh button and verify the spinner, checkmark, and updated tab count appear.
+14. Close the side panel and verify GroupRail does not block or overlay page content.
 
-No test account is required. The extension performs no network requests.
+No test account is required. The extension has no application-controlled network requests, remote service, analytics, or telemetry. Its packaged content policy permits only local or embedded images, and direct remote favicon URLs are rejected.
+
+## Permission disclosure
+
+- `tabs`: read current-window tab titles, URLs, icons, order, active state, and group membership; activate the tab the user chooses.
+- `tabGroups`: create, name, color, move, compact, restore, or safely ungroup native Edge groups.
+- `contextMenus`: show the browser-controlled **GroupRail: Move this tab** menu.
+- `sidePanel`: host the GroupRail interface.
+- `storage`: save names, preferences, and privacy-minimized active-group match keys locally.
+- `favicon`: use Edge's browser-local extension favicon resource instead of loading remote favicon URLs directly.
+
+GroupRail requests no host permissions and injects no scripts into websites.

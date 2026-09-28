@@ -9,10 +9,17 @@ export function normalizeUrl(value) {
   if (!value) return "";
   try {
     const url = new URL(value);
+    url.username = "";
+    url.password = "";
+    url.search = "";
     url.hash = "";
+    if (url.protocol === "file:") return "file:";
+    if (!/^(https?|edge|chrome|about|chrome-extension):$/.test(url.protocol)) {
+      return url.protocol;
+    }
     return url.href;
   } catch {
-    return String(value);
+    return "";
   }
 }
 
@@ -87,7 +94,26 @@ export function filterSnapshot(snapshot, query) {
 
 export function safeFavicon(tab) {
   const value = tab.favIconUrl || "";
-  return /^(https?:|data:|chrome-extension:|chrome:\/\/favicon)/i.test(value) ? value : "";
+  return /^data:image\//i.test(value) ? value : "";
+}
+
+export function faviconPageUrl(value) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    if (!/^(https?|edge|chrome|about):$/.test(url.protocol)) return "";
+    url.username = "";
+    url.password = "";
+    url.search = "";
+    url.hash = "";
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+export function retainClaimedRecords(records, claimedRecordIds) {
+  return records.filter((record) => claimedRecordIds.has(record.id));
 }
 
 export function groupDropPosition(sourceIndex, targetIndex, placement) {

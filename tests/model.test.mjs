@@ -3,17 +3,24 @@ import assert from "node:assert/strict";
 import {
   COMPACT_GROUP_TITLE,
   chooseRecord,
+  faviconPageUrl,
   filterSnapshot,
   groupDropPosition,
   normalizeUrl,
   overlapScore,
   safeFavicon,
   tabDropIndex,
+  retainClaimedRecords,
   visibleGroupTitle,
 } from "../model.js";
 
-test("normalizeUrl removes fragments but preserves meaningful query parameters", () => {
-  assert.equal(normalizeUrl("https://example.com/a?q=1#section"), "https://example.com/a?q=1");
+test("normalizeUrl removes credentials, queries, and fragments", () => {
+  assert.equal(
+    normalizeUrl("https://user:secret@example.com/a?q=1#section"),
+    "https://example.com/a",
+  );
+  assert.equal(normalizeUrl("file:///C:/Users/example/private.txt"), "file:");
+  assert.equal(normalizeUrl("not a url"), "");
 });
 
 test("overlapScore uses URL-set Jaccard similarity", () => {
@@ -81,9 +88,24 @@ test("filterSnapshot matches folder names and tab content", () => {
 });
 
 test("safeFavicon rejects privileged and local protocols", () => {
-  assert.equal(safeFavicon({ favIconUrl: "https://example.com/favicon.ico" }), "https://example.com/favicon.ico");
-  assert.equal(safeFavicon({ favIconUrl: "chrome://favicon/https://example.com" }), "chrome://favicon/https://example.com");
+  assert.equal(safeFavicon({ favIconUrl: "https://example.com/favicon.ico" }), "");
+  assert.equal(safeFavicon({ favIconUrl: "chrome://favicon/https://example.com" }), "");
+  assert.equal(safeFavicon({ favIconUrl: "data:image/png;base64,AAAA" }), "data:image/png;base64,AAAA");
   assert.equal(safeFavicon({ favIconUrl: "file:///tmp/icon.png" }), "");
+});
+
+test("faviconPageUrl accepts browser pages without sensitive URL components", () => {
+  assert.equal(
+    faviconPageUrl("https://user:secret@example.com/path?q=private#section"),
+    "https://example.com/path",
+  );
+  assert.equal(faviconPageUrl("file:///C:/private.txt"), "");
+  assert.equal(faviconPageUrl("javascript:alert(1)"), "");
+});
+
+test("retainClaimedRecords prunes records for retired groups", () => {
+  const records = [{ id: "active" }, { id: "retired" }];
+  assert.deepEqual(retainClaimedRecords(records, new Set(["active"])), [{ id: "active" }]);
 });
 
 test("groupDropPosition accounts for removing the dragged group", () => {
