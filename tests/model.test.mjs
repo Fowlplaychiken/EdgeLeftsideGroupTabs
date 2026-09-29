@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   COMPACT_GROUP_TITLE,
+  moveMenuContexts,
   chooseRecord,
   faviconPageUrl,
   filterSnapshot,
@@ -13,6 +15,21 @@ import {
   retainClaimedRecords,
   visibleGroupTitle,
 } from "../model.js";
+
+const manifest = JSON.parse(readFileSync(new URL("../manifest.json", import.meta.url), "utf8"));
+
+test("tab-strip move menu appears only while compact mode hides native names", () => {
+  assert.ok(moveMenuContexts(false).includes("page"));
+  assert.ok(!moveMenuContexts(false).includes("tab"));
+  assert.ok(moveMenuContexts(true).includes("page"));
+  assert.ok(moveMenuContexts(true).includes("tab"));
+});
+
+test("group-name toggle command has no default shortcut", () => {
+  const command = manifest.commands["toggle-group-names"];
+  assert.equal(command.description, "Toggle compact group names");
+  assert.equal(command.suggested_key, undefined);
+});
 
 test("normalizeUrl removes credentials, queries, and fragments", () => {
   assert.equal(

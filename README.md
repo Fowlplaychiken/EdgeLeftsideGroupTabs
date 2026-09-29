@@ -8,7 +8,7 @@
 
 GroupRail is a free, open-source Edge extension for people with dozens—or hundreds—of open tabs. It turns native Edge tab groups into a compact folder rail in the browser side panel, while ungrouped tabs remain in Edge's familiar horizontal tab strip and keep their order.
 
-GroupRail 1.0.2 is release-ready and has been dogfood-tested in Microsoft Edge with a real 100+ tab window plus a privacy-safe 100-tab test profile.
+GroupRail 1.0.3 is under development and has been dogfood-tested in Microsoft Edge with a real 100+ tab window plus a privacy-safe 100-tab test profile.
 
 ![GroupRail showing eight Edge tab groups in a compact side rail](assets/store/screenshot-overview.png)
 
@@ -25,7 +25,8 @@ Edge makes you choose between a crowded horizontal strip and moving every tab in
 - Create, rename, recolor, reorder, or safely ungroup native groups.
 - Drag groups into a new order and drag tabs within or between groups, including Loose Tabs.
 - Use the compact organizer menus as an accessible alternative to dragging.
-- Right-click inside any webpage to move its tab with **GroupRail: Move this tab**, even when the rail is closed.
+- In smallest-marker mode, right-click a browser tab to move it with **GroupRail: Move this tab**; the extra tab-strip menu hides itself when Edge's native group names are visible. The webpage organizer remains available in either mode.
+- Optionally assign your own **Toggle compact group names** shortcut; GroupRail deliberately reserves no default key combination.
 
 This makes GroupRail relevant to searches such as **tab groups sidebar**, **Edge tab manager**, **vertical tab groups**, **collapse tab groups**, and **organize many tabs** while keeping a distinct, memorable product name.
 
@@ -53,7 +54,9 @@ This makes GroupRail relevant to searches such as **tab groups sidebar**, **Edge
 4. The full group names remain available in the side panel.
 5. Select **Show names in Edge menus** at any time to reverse the change.
 
-Compact mode and Edge's built-in tab-strip group menu share one browser limitation: Edge uses the same title for both places. Smallest-marker mode therefore makes the names blank in Edge's native **Add tab to group** menu. GroupRail preserves the full names in its rail and in its webpage context menu. Right-click inside the page and choose **GroupRail: Move this tab** to organize the current tab without opening the rail. If you prefer Edge's native tab-strip menu, choose **Show names in Edge menus**.
+Compact mode and Edge's built-in tab-strip group menu share one browser limitation: Edge uses the same title for both places. Smallest-marker mode therefore makes the names blank in Edge's native **Add tab to group** menu. GroupRail preserves the full names in its rail and adds **GroupRail: Move this tab** to the tab-strip menu while compact mode is active. That extra tab-strip entry hides itself when native names are restored; the webpage organizer remains available in either mode. If you prefer Edge's native tab-strip menu, choose **Show names in Edge menus**.
+
+To assign the optional toggle hotkey, open Edge's **Keyboard shortcuts** page for extensions, find GroupRail, and choose a key combination for **Toggle compact group names**. No shortcut is assigned by default, so GroupRail cannot conflict with an existing key binding unless you choose one.
 
 Use the `‹` control in GroupRail's header to collapse the rail completely and return all page width. Reopen it from the pinned GroupRail toolbar icon or the keyboard shortcut. Edge owns the dock width; drag the panel divider to make GroupRail as narrow as you prefer.
 
@@ -77,7 +80,7 @@ GroupRail has no accounts, ads, analytics, telemetry, content scripts, host perm
 | --- | --- |
 | `tabs` | Display tab titles, URLs, favicons, order, and active state; activate the tab you choose. |
 | `tabGroups` | Display and, only when requested, create, rename, recolor, move, compact, restore, or ungroup native groups. |
-| `contextMenus` | Add the local **GroupRail: Move this tab** menu inside webpages. |
+| `contextMenus` | Add the local **GroupRail: Move this tab** menu inside webpages and, only while compact mode hides native names, to the tab strip. |
 | `favicon` | Ask Edge's browser-local favicon resource for cached site icons without loading a site's remote favicon URL directly. |
 | `sidePanel` | Show GroupRail in Edge's supported side panel. |
 | `storage` | Save group names, display preferences, and privacy-minimized active-group match keys locally. Match keys exclude credentials, query strings, fragments, invalid URLs, and local file paths; unmatched records receive a 24-hour recovery window before pruning. |
@@ -135,7 +138,7 @@ Before a release, also load the unpacked extension in Edge and complete the manu
 
 ## Security
 
-GroupRail's threat-focused source audit covers all tracked files and the packaged extension. See [SECURITY.md](SECURITY.md) for the reporting path and design guarantees. The v1.0.1 hardening release removed direct remote favicon loading and minimized locally stored URL match keys. Version 1.0.2 preserves folder names when Edge recreates native group IDs or briefly exposes an incomplete session-restore snapshot, while still pruning unmatched records after a 24-hour recovery window.
+GroupRail's threat-focused source audit covers all tracked files and the packaged extension. See [SECURITY.md](SECURITY.md) for the reporting path and design guarantees. The v1.0.1 hardening release removed direct remote favicon loading and minimized locally stored URL match keys. Version 1.0.2 preserves folder names when Edge recreates native group IDs or briefly exposes an incomplete session-restore snapshot, while still pruning unmatched records after a 24-hour recovery window. Version 1.0.3 adds the named GroupRail organizer directly to Edge's tab-strip right-click menu without requesting another permission.
 
 ## License
 

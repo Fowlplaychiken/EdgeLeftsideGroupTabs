@@ -1,5 +1,19 @@
 export const NO_GROUP = -1;
 export const COMPACT_GROUP_TITLE = "\u200B";
+const PAGE_MOVE_MENU_CONTEXTS = Object.freeze([
+  "page",
+  "frame",
+  "selection",
+  "link",
+  "editable",
+  "image",
+  "video",
+  "audio",
+]);
+
+export function moveMenuContexts(compact) {
+  return compact ? [...PAGE_MOVE_MENU_CONTEXTS, "tab"] : [...PAGE_MOVE_MENU_CONTEXTS];
+}
 
 export function visibleGroupTitle(value) {
   return value && value !== COMPACT_GROUP_TITLE ? value : "";

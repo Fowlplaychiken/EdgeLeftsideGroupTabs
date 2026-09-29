@@ -21,7 +21,9 @@ Organize tabs without giving up Edge's native groups:
 - Drag tabs within a group, between groups, or into Loose Tabs.
 - Use compact organizer menus when keyboard or menu controls are preferred.
 - Move tabs earlier or later while preserving their exact browser order.
-- Right-click inside a webpage and choose **GroupRail: Move this tab** to file the current tab while the side rail is closed.
+- In smallest-marker mode, right-click a browser tab and choose **GroupRail: Move this tab** to file it using full saved group names; this extra tab-strip menu hides itself when native names are visible.
+- Right-click inside a webpage to use the same organizer in either display mode while the side rail is closed.
+- Optionally assign a custom shortcut to toggle compact group names; GroupRail reserves no default key combination.
 - Choose from Edge's nine native colors with a clear visual swatch picker.
 - Removing a group never closes its tabs.
 
@@ -76,11 +78,12 @@ Free
 7. Expand two groups, then drag a tab within a group, between the groups, and into Loose Tabs.
 8. Use a tab's `⋯` menu to verify the same organization actions are available without dragging.
 9. Right-click inside a webpage and confirm **GroupRail: Move this tab** lists the full saved group names.
-10. Select **Use smallest top-bar markers** and verify group names are removed from the native tab strip while names remain visible in GroupRail.
-11. Select an ungrouped tab and verify inactive native groups collapse.
-12. Select **Show names in Edge menus** and verify the original native names return.
-13. Select the refresh button and verify the spinner, checkmark, and updated tab count appear.
-14. Close the side panel and verify GroupRail does not block or overlay page content.
+10. Select **Use smallest top-bar markers**, right-click a browser tab, and confirm **GroupRail: Move this tab** lists the full saved group names while Edge's native group names remain compact.
+11. Select **Show names in Edge menus**, right-click a browser tab, and confirm the extra GroupRail tab-strip menu is hidden while Edge's native named menu remains available.
+12. Assign a temporary shortcut to **Toggle compact group names**, verify both directions, then remove the shortcut.
+13. Select an ungrouped tab and verify inactive native groups collapse.
+14. Select the refresh button and verify the spinner, checkmark, and updated tab count appear.
+15. Close the side panel and verify GroupRail does not block or overlay page content.
 
 No test account is required. The extension has no application-controlled network requests, remote service, analytics, or telemetry. Its packaged content policy permits only local or embedded images, and direct remote favicon URLs are rejected.
 

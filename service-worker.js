@@ -1,6 +1,11 @@
+import {
+  COMPACT_GROUP_TITLE,
+  moveMenuContexts,
+  uniqueUrls,
+  visibleGroupTitle,
+} from "./model.js";
+
 const SETTINGS_KEY = "folderRailSettingsV1";
-const COMPACT_GROUP_TITLE = "\u200B";
-const MENU_CONTEXTS = ["page", "frame", "selection", "link", "editable", "image", "video", "audio"];
 
 function removeAllMenus() {
   return new Promise((resolve) => chrome.contextMenus.removeAll(resolve));
@@ -26,13 +31,15 @@ function rebuildMenus(windowId) {
         chrome.tabGroups.query({ windowId: targetWindowId }),
         chrome.storage.local.get(SETTINGS_KEY),
       ]);
-      const records = stored[SETTINGS_KEY]?.folderRecords || [];
+      const settings = stored[SETTINGS_KEY];
+      const records = settings?.folderRecords || [];
+      const menuContexts = moveMenuContexts(Boolean(settings?.compactWindows?.[targetWindowId]));
 
       await removeAllMenus();
       await createMenu({
         id: "grouprail-root",
         title: "GroupRail: Move this tab",
-        contexts: MENU_CONTEXTS,
+        contexts: menuContexts,
       });
       for (const group of groups) {
         const savedName = records.find((record) => record.lastGroupId === group.id)?.name;
@@ -43,7 +50,7 @@ function rebuildMenus(windowId) {
           id: `grouprail-group:${group.id}`,
           parentId: "grouprail-root",
           title,
-          contexts: MENU_CONTEXTS,
+          contexts: menuContexts,
         });
       }
       if (groups.length) {
@@ -51,20 +58,70 @@ function rebuildMenus(windowId) {
           id: "grouprail-separator",
           parentId: "grouprail-root",
           type: "separator",
-          contexts: MENU_CONTEXTS,
+          contexts: menuContexts,
         });
       }
       await createMenu({
         id: "grouprail-loose",
         parentId: "grouprail-root",
         title: "Move to Loose tabs",
-        contexts: MENU_CONTEXTS,
+        contexts: menuContexts,
       });
     } catch {
       // The focused window or a group may have changed during the rebuild.
     }
   });
   return menuBuild;
+}
+
+async function toggleGroupNames() {
+  const targetWindow = await chrome.windows.getLastFocused({ windowTypes: ["normal"] });
+  const [groups, tabs, stored] = await Promise.all([
+    chrome.tabGroups.query({ windowId: targetWindow.id }),
+    chrome.tabs.query({ windowId: targetWindow.id }),
+    chrome.storage.local.get(SETTINGS_KEY),
+  ]);
+  const settings = stored[SETTINGS_KEY] || {
+    compactWindows: {},
+    folderRecords: [],
+    showLooseTabs: false,
+  };
+  settings.compactWindows ||= {};
+  settings.folderRecords ||= [];
+
+  if (settings.compactWindows[targetWindow.id]) {
+    await Promise.all(groups.map((group, index) => {
+      const record = settings.folderRecords.find((item) => item.lastGroupId === group.id);
+      const name = record?.name || visibleGroupTitle(group.title) || `Folder ${index + 1}`;
+      return chrome.tabGroups.update(group.id, { title: name });
+    }));
+    delete settings.compactWindows[targetWindow.id];
+  } else {
+    groups.forEach((group, index) => {
+      const groupTabs = tabs.filter((tab) => tab.groupId === group.id);
+      let record = settings.folderRecords.find((item) => item.lastGroupId === group.id);
+      if (!record) {
+        record = { id: crypto.randomUUID() };
+        settings.folderRecords.push(record);
+      }
+      record.name = visibleGroupTitle(group.title) || record.name || `Folder ${index + 1}`;
+      record.color = group.color;
+      record.lastGroupId = group.id;
+      record.urls = uniqueUrls(groupTabs);
+      record.updatedAt = Date.now();
+      delete record.missingSince;
+    });
+    settings.compactWindows[targetWindow.id] = true;
+    await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
+    const activeTab = tabs.find((tab) => tab.active);
+    await Promise.all(groups.map((group) => chrome.tabGroups.update(group.id, {
+      title: COMPACT_GROUP_TITLE,
+      collapsed: group.id !== activeTab?.groupId,
+    })));
+  }
+
+  await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
+  await rebuildMenus(targetWindow.id);
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -103,6 +160,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   } catch {
     // Pinned, closing, or cross-window tabs can become unavailable before the click is handled.
   }
+});
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command !== "toggle-group-names") return;
+  return toggleGroupNames().catch(() => {});
 });
 
 chrome.windows.onFocusChanged.addListener((windowId) => {
