@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "GroupRail - Side Tab Groups",
   "short_name": "GroupRail",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A privacy-first Edge tab manager and tab groups sidebar that keeps loose tabs on top and compacts crowded group labels.",
   "homepage_url": "https://github.com/Fowlplaychiken/EdgeLeftsideGroupTabs",
   "minimum_chrome_version": "114",

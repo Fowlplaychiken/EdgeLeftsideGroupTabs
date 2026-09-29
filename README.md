@@ -8,7 +8,7 @@
 
 GroupRail is a free, open-source Edge extension for people with dozens—or hundreds—of open tabs. It turns native Edge tab groups into a compact folder rail in the browser side panel, while ungrouped tabs remain in Edge's familiar horizontal tab strip and keep their order.
 
-GroupRail 1.0.1 is release-ready and has been dogfood-tested in Microsoft Edge with a real 97-tab window plus a privacy-safe 100-tab test profile.
+GroupRail 1.0.2 is release-ready and has been dogfood-tested in Microsoft Edge with a real 100+ tab window plus a privacy-safe 100-tab test profile.
 
 ![GroupRail showing eight Edge tab groups in a compact side rail](assets/store/screenshot-overview.png)
 
@@ -80,7 +80,7 @@ GroupRail has no accounts, ads, analytics, telemetry, content scripts, host perm
 | `contextMenus` | Add the local **GroupRail: Move this tab** menu inside webpages. |
 | `favicon` | Ask Edge's browser-local favicon resource for cached site icons without loading a site's remote favicon URL directly. |
 | `sidePanel` | Show GroupRail in Edge's supported side panel. |
-| `storage` | Save group names, display preferences, and privacy-minimized active-group match keys locally. Match keys exclude credentials, query strings, fragments, invalid URLs, and local file paths; retired-group records are pruned. |
+| `storage` | Save group names, display preferences, and privacy-minimized active-group match keys locally. Match keys exclude credentials, query strings, fragments, invalid URLs, and local file paths; unmatched records receive a 24-hour recovery window before pruning. |
 
 GroupRail cannot read cookies, saved passwords, form data, or page contents. See [PRIVACY.md](PRIVACY.md) for the full policy.
 
@@ -135,7 +135,7 @@ Before a release, also load the unpacked extension in Edge and complete the manu
 
 ## Security
 
-GroupRail's threat-focused source audit covers all tracked files and the packaged extension. See [SECURITY.md](SECURITY.md) for the reporting path and design guarantees. The v1.0.1 hardening release removes direct remote favicon loading, minimizes locally stored URL match keys, and removes retired-group records.
+GroupRail's threat-focused source audit covers all tracked files and the packaged extension. See [SECURITY.md](SECURITY.md) for the reporting path and design guarantees. The v1.0.1 hardening release removed direct remote favicon loading and minimized locally stored URL match keys. Version 1.0.2 preserves folder names when Edge recreates native group IDs or briefly exposes an incomplete session-restore snapshot, while still pruning unmatched records after a 24-hour recovery window.
 
 ## License
 

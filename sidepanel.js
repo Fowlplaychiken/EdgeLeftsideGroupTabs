@@ -143,10 +143,17 @@ async function readSnapshot() {
       tabs: tabs.filter((tab) => tab.groupId === group.id).sort((a, b) => a.index - b.index),
     }))
     .sort((left, right) => (left.tabs[0]?.index ?? Infinity) - (right.tabs[0]?.index ?? Infinity));
+  const canRecoverByPosition = orderedGroups.length === records.length;
 
   let recordsChanged = false;
   const folders = orderedGroups.map(({ group, tabs: groupTabs }, index) => {
-    let record = chooseRecord(group, groupTabs, records, claimed);
+    let record = chooseRecord(
+      group,
+      groupTabs,
+      records,
+      claimed,
+      canRecoverByPosition ? records[index] : undefined,
+    );
     if (!record) {
       record = makeRecord(group, groupTabs, index);
       records.push(record);
@@ -177,7 +184,7 @@ async function readSnapshot() {
   });
 
   const retainedRecords = retainClaimedRecords(records, claimed);
-  if (retainedRecords.length !== records.length) recordsChanged = true;
+  if (JSON.stringify(retainedRecords) !== JSON.stringify(records)) recordsChanged = true;
 
   if (recordsChanged || compactStateChanged) {
     settings.folderRecords = retainedRecords;

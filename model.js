@@ -40,7 +40,13 @@ export function overlapScore(left = [], right = []) {
   return intersection / new Set([...a, ...b]).size;
 }
 
-export function chooseRecord(group, tabs, records, claimedRecordIds = new Set()) {
+export function chooseRecord(
+  group,
+  tabs,
+  records,
+  claimedRecordIds = new Set(),
+  preferredRecord,
+) {
   const available = records.filter((record) => !claimedRecordIds.has(record.id));
   const exactId = available.find((record) => record.lastGroupId === group.id);
   if (exactId) return exactId;
@@ -64,7 +70,18 @@ export function chooseRecord(group, tabs, records, claimedRecordIds = new Set())
       bestScore = score + colorBonus;
     }
   }
-  return bestScore >= 0.55 ? best : undefined;
+  if (bestScore >= 0.55) return best;
+
+  // Edge may restore a session with entirely new native group ids before all
+  // tabs have finished loading. Compact groups have no native title to match,
+  // so use a unique color, then the saved positional hint, to keep their names.
+  if (!groupTitle && preferredRecord) {
+    const sameColor = available.filter((record) => record.color === group.color);
+    if (sameColor.length === 1) return sameColor[0];
+    if (available.includes(preferredRecord)) return preferredRecord;
+  }
+
+  return undefined;
 }
 
 export function searchableText(tab) {
@@ -112,8 +129,21 @@ export function faviconPageUrl(value) {
   }
 }
 
-export function retainClaimedRecords(records, claimedRecordIds) {
-  return records.filter((record) => claimedRecordIds.has(record.id));
+export function retainClaimedRecords(
+  records,
+  claimedRecordIds,
+  now = Date.now(),
+  graceMs = 24 * 60 * 60 * 1000,
+) {
+  return records.flatMap((record) => {
+    if (claimedRecordIds.has(record.id)) {
+      if (record.missingSince === undefined) return [record];
+      const { missingSince: _missingSince, ...activeRecord } = record;
+      return [activeRecord];
+    }
+    const missingSince = record.missingSince ?? now;
+    return now - missingSince < graceMs ? [{ ...record, missingSince }] : [];
+  });
 }
 
 export function groupDropPosition(sourceIndex, targetIndex, placement) {

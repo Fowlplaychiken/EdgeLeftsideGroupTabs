@@ -68,6 +68,38 @@ test("chooseRecord recovers a record by URL overlap after group ids change", () 
   assert.equal(chooseRecord({ id: 99, title: "", color: "blue" }, tabs, [record]), record);
 });
 
+test("compact groups keep their saved names when Edge replaces every group id", () => {
+  const records = [
+    { id: "alpha", lastGroupId: 1, name: "Project Alpha", color: "green", urls: ["https://old.test/alpha"] },
+    { id: "beta", lastGroupId: 2, name: "Project Beta", color: "blue", urls: ["https://old.test/beta"] },
+    { id: "gamma", lastGroupId: 3, name: "Project Gamma", color: "red", urls: ["https://old.test/gamma"] },
+  ];
+  const restoredGroups = [
+    { id: 101, title: COMPACT_GROUP_TITLE, color: "green" },
+    { id: 102, title: COMPACT_GROUP_TITLE, color: "blue" },
+    { id: 103, title: COMPACT_GROUP_TITLE, color: "red" },
+  ];
+  const claimed = new Set();
+
+  const recovered = restoredGroups.map((group, index) => {
+    const record = chooseRecord(
+      group,
+      [{ url: `https://restored.test/${index}` }],
+      records,
+      claimed,
+      records[index],
+    );
+    if (record) claimed.add(record.id);
+    return record?.name;
+  });
+
+  assert.deepEqual(recovered, [
+    "Project Alpha",
+    "Project Beta",
+    "Project Gamma",
+  ]);
+});
+
 test("filterSnapshot matches folder names and tab content", () => {
   const snapshot = {
     folders: [
@@ -103,9 +135,30 @@ test("faviconPageUrl accepts browser pages without sensitive URL components", ()
   assert.equal(faviconPageUrl("javascript:alert(1)"), "");
 });
 
-test("retainClaimedRecords prunes records for retired groups", () => {
-  const records = [{ id: "active" }, { id: "retired" }];
-  assert.deepEqual(retainClaimedRecords(records, new Set(["active"])), [{ id: "active" }]);
+test("retainClaimedRecords survives a transient incomplete Edge snapshot", () => {
+  const records = [{ id: "active" }, { id: "temporarily-missing" }];
+  assert.deepEqual(retainClaimedRecords(records, new Set(["active"]), 1000, 5000), [
+    { id: "active" },
+    { id: "temporarily-missing", missingSince: 1000 },
+  ]);
+  assert.deepEqual(
+    retainClaimedRecords(
+      [{ id: "temporarily-missing", missingSince: 1000 }],
+      new Set(),
+      6000,
+      5000,
+    ),
+    [],
+  );
+  assert.deepEqual(
+    retainClaimedRecords(
+      [{ id: "returned", missingSince: 1000 }],
+      new Set(["returned"]),
+      2000,
+      5000,
+    ),
+    [{ id: "returned" }],
+  );
 });
 
 test("groupDropPosition accounts for removing the dragged group", () => {
