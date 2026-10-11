@@ -8,8 +8,6 @@
 
 GroupRail is a free, open-source Edge extension for people with dozens—or hundreds—of open tabs. It turns native Edge tab groups into a compact folder rail in the browser side panel, while ungrouped tabs remain in Edge's familiar horizontal tab strip and keep their order.
 
-GroupRail 1.0.3 is under development and has been dogfood-tested in Microsoft Edge with a real 100+ tab window plus a privacy-safe 100-tab test profile.
-
 ![GroupRail showing eight Edge tab groups in a compact side rail](assets/store/screenshot-overview.png)
 
 ## Why GroupRail?
