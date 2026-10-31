@@ -1,6 +1,6 @@
 # GroupRail roadmap
 
-GroupRail is a Manifest V3 Microsoft Edge extension (version 1.0.3) that shows native tab groups as folders in the side panel. It works today: `npm test` passes 15 Node tests, and releases v1.0.0 to v1.0.3 exist on GitHub. The open work is accessibility fixes found in a 2026-10-31 review, release tooling, and the store-listing decision.
+GroupRail is a Manifest V3 Microsoft Edge extension (version 1.0.3) that shows native tab groups as folders in the side panel. It works today: `npm test` passes 15 Node tests, and releases v1.0.0 to v1.0.3 exist on GitHub. The owner considers it done (2026-10-31): no store submission is planned. The only open work is the bugs and small improvements below, found in a 2026-10-31 review.
 
 This file is the only work list for this repository. `STORE_LISTING.md` is the store copy and manual certification checklist, not a to-do list.
 
@@ -24,7 +24,10 @@ Statuses: `todo`, `in_progress`, `review`, `done`, `blocked`, `needs owner scope
 | 4 | [GR-004](docs/roadmap/cards/GR-004-wcag-manual-pass.md) | Run and record a WCAG 2.2 AA pass in real Edge | S2 | a11y | P2 | agent with Edge on Windows | M | GR-001, GR-002, GR-003 | todo |
 | 5 | [GR-005](docs/roadmap/cards/GR-005-release-packaging.md) | Add a reproducible release packaging script | S2 | release | P2 | any | S | none | todo |
 | 6 | [GR-006](docs/roadmap/cards/GR-006-docs-drift.md) | Correct stale test counts and point docs at the roadmap | S1 | docs | P3 | any | S | none | todo |
-| 7 | [GR-007](docs/roadmap/cards/GR-007-store-submission.md) | Decide whether and when to submit to Edge Add-ons | S3 | release | P2 | owner | S | GR-004, GR-005 | needs owner scope |
+
+## Owner decision (2026-10-31)
+
+Nick: "Grouprail is done so unless you see bugs or improvements you can leave it." The store-submission card was dropped. Add a card only for a real bug or a clear improvement; publishing to Edge Add-ons stays the owner's decision (AGENTS.md).
 
 ## Notes from the 2026-10-31 review
 
