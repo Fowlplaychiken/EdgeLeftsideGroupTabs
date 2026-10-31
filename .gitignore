@@ -2,3 +2,4 @@ output/
 work/
 .playwright-cli/
 *.zip
+__pycache__/
